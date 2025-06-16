@@ -1,0 +1,15 @@
+.flash {
+  animation: flash-effect 0.4s;
+}
+
+@keyframes flash-effect {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(2);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
