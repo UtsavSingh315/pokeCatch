@@ -36,7 +36,7 @@ function App() {
       <div className="flex flex-col ">
         <CatchPokemon />
         <ShowPokemon />
-        <CallPokemon />
+        {/* <CallPokemon /> */}
       </div>
     </>
   );
