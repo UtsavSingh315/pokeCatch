@@ -1,7 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { setPokemon } from "../redux/actions";
-
+import { updatePokemon } from "../redux/catchedPokemon.slice";
+import { getRandomPokemon, getRandomPokemons } from "../utils/randomPokemon";
+import PokemonCard from "./PokemonCard";
 const TIMER_MAX = 5;
 const POKEMON_COUNT = 3;
 
@@ -14,36 +15,10 @@ const CatchPokemon = () => {
   const inputRef = React.useRef(null);
   const dispatch = useDispatch();
 
-  const getRandomPokemon = async () => {
-    const randomId = Math.floor(Math.random() * 1026) + 1;
-    const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}/`);
-    const pokemon = await data.json();
-    const poke = {
-      id: pokemon.id,
-      name: pokemon.name,
-      weight: pokemon.weight,
-      height: pokemon.height,
-      types: pokemon.types.map((type) => type.type.name),
-      image: pokemon.sprites.other["official-artwork"].front_default,
-    };
-    return poke;
-  };
 
-  const getRandomPokemons = async () => {
-    const pokemons = [];
-    const usedIds = new Set();
-    while (pokemons.length < POKEMON_COUNT) {
-      const poke = await getRandomPokemon();
-      if (!usedIds.has(poke.id)) {
-        pokemons.push(poke);
-        usedIds.add(poke.id);
-      }
-    }
-    return pokemons;
-  };
 
   React.useEffect(() => {
-    getRandomPokemons().then(setCurrentPokemons);
+    getRandomPokemons(POKEMON_COUNT).then(setCurrentPokemons);
     setTimer(TIMER_MAX);
 
     const id = setInterval(() => {
@@ -51,7 +26,7 @@ const CatchPokemon = () => {
         if (prev > 1) {
           return prev - 1;
         } else {
-          getRandomPokemons().then(setCurrentPokemons);
+          getRandomPokemons(POKEMON_COUNT).then(setCurrentPokemons);
           setInput("");
           return TIMER_MAX;
         }
@@ -70,7 +45,7 @@ const CatchPokemon = () => {
       (poke) => input.trim().toLowerCase() === poke.name.toLowerCase()
     );
     if (matched) {
-      dispatch(setPokemon(matched));
+      dispatch(updatePokemon(matched));
       setNotification(`You caught ${matched.name} !!!`);
       setTimeout(() => setNotification(null), 1000); 
       setInput("");
@@ -86,22 +61,7 @@ const CatchPokemon = () => {
     setInput(e.target.value);
   };
 
-  const getHighlightedName = (name) => {
-    const inputLower = input.trim().toLowerCase();
-    let result = [];
-    for (let i = 0; i < name.length; i++) {
-      if (i < inputLower.length && name[i].toLowerCase() === inputLower[i]) {
-        result.push(
-          <span key={i} style={{ color: "#eab308", fontWeight: "bold" }}>
-            {name[i].toUpperCase()}
-          </span>
-        );
-      } else {
-        result.push(<span key={i}>{name[i].toUpperCase()}</span>);
-      }
-    }
-    return result;
-  };
+  
 
   return (
     <div
@@ -136,35 +96,12 @@ const CatchPokemon = () => {
       </div>
       <div className="flex flex-row gap-4 sm:gap-8 justify-center items-start w-full max-w-3xl">
         {currentPokemons.map((currentPokemon) => (
-          <div
+          <PokemonCard 
+            pokemon={currentPokemon}
             key={currentPokemon.id}
-            className="p-3 sm:p-4 flex flex-col items-center md:bg-neutral-800 rounded-xl shadow-lg w-full sm:w-72">
-            <img
-              src={currentPokemon.image}
-              alt={currentPokemon.name}
-              className="h-32 sm:h-48 object-contain"
-            />
-            <br />
-            <h1 className="text-xs md:text-lg font-bold text-center">
-              <span className="text-xs text-gray-500">
-                #{currentPokemon.id}
-              </span>{" "}
-              - <span>{getHighlightedName(currentPokemon.name)}</span>
-              <p className="text-[0.6rem] sm:text-base italic text-gray-500">
-                {currentPokemon.weight / 10} Kg - {currentPokemon.height * 10}{" "}
-                cm
-              </p>
-            </h1>
-            <div className="mt-2 hidden md:flex flex-wrap justify-center">
-              {currentPokemon.types.map((type) => (
-                <p
-                  key={type}
-                  className="p-1 rounded-2xl px-2.5 bg-neutral-600 text-gray-900 inline mx-1 capitalize md:text-base text-xs">
-                  {type}
-                </p>
-              ))}
-            </div>
-          </div>
+            className="w-24 sm:w-32 md:w-40 lg:w-48 xl:w-56"
+            typeRef={inputRef}
+          />
         ))}
       </div>
       <form

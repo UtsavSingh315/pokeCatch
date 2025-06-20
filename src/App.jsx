@@ -7,6 +7,7 @@ import "./App.css";
 // import { increment, decrement } from './redux/actions';
 import ShowPokemon from "./components/ShowPokemon";
 import CatchPokemon from "./components/CatchPokemon";
+import CallPokemon from "./components/CallPokemon";
 function App() {
   // const dispatch = useDispatch()
   // const counterValue = useSelector((state) => state.value)
@@ -35,6 +36,7 @@ function App() {
       <div className="flex flex-col ">
         <CatchPokemon />
         <ShowPokemon />
+        <CallPokemon />
       </div>
     </>
   );
